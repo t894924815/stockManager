@@ -1,6 +1,8 @@
 <template>
   <div class="home">
-    <el-row display="margin-top:10px"></el-row>
+    <el-row display="margin-top:10px;margin-bottom: 20px">
+       <el-button @click="goManager" style="margin-right: 20px">后台管理</el-button>
+    </el-row>
     <el-row style="margin-bottom: 20px">
       <el-table :data="overall" style="width: 100%" border :cell-style="overallCellStyle">
         <el-table-column prop="offsetToday" label="当日盈亏">
@@ -14,7 +16,7 @@
         <el-table-column prop="offsetTotal" label="累计盈亏">
           <template slot-scope="scope">{{scope.row.offsetTotal.toFixed(2)}}</template>
         </el-table-column>
-        <el-table-column prop="totalValue" label="市值">
+        <el-table-column prop="totalValue" label="持股市值">
           <template slot-scope="scope">{{scope.row.totalValue.toFixed(2)}}</template>
         </el-table-column>
         <el-table-column label="总资产">
@@ -77,12 +79,12 @@
           </template>
         </el-table-column>
         <el-table-column prop="priceNow" label="现价"></el-table-column>
-        <el-table-column prop="offsetTodayRatio" label="涨跌" sortable>
+        <el-table-column prop="offsetToday" label="涨跌">
           <template
             slot-scope="scope"
           >{{scope.row.offsetToday.toFixed(3) + " (" + scope.row.offsetTodayRatio + ")"}}</template>
         </el-table-column>
-        <el-table-column prop="totalValue" label="市值" sortable>
+        <el-table-column prop="totalValue" label="持股市值" sortable>
           <template slot-scope="scope">{{scope.row.totalValue.toFixed(2)}}</template>
         </el-table-column>
         <el-table-column prop="holdCount" label="持仓"></el-table-column>
@@ -114,7 +116,7 @@ export default {
       overall: [],
       hideState: true,
       hideStr: "显示",
-      targetUrl: "http://127.0.0.1:8000",
+      targetUrl: "https://api.stock.iakira.moe",
     };
   },
   mounted: function () {
@@ -174,6 +176,9 @@ export default {
     },
     sortTotalValue(obj1, obj2) {
       return parseFloat(obj1) < parseFloat(obj2);
+    },
+    goManager() {
+      window.open('https://api.stock.iakira.moe/admin/',"_blank");
     },
     refreshDivident() {
       var codeList = [];
