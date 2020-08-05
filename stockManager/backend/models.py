@@ -6,25 +6,33 @@ from django.utils import timezone
 # Create your models here.
 
 class Operation(models.Model):
+    class Meta:
+        verbose_name = '交易记录'
+        verbose_name_plural = '交易记录'
+    class platformType(models.TextChoices):
+        SH = 'sh', _('沪')
+        SZ = 'sz',_('深')
     class operationType(models.TextChoices):
         BUY = 'BUY', _('买入')
         SELL = 'SELL', _('卖出')
         Divident = 'DV', _('除权除息')
         
-    code = models.CharField(max_length=200)
-    date = models.DateField()
+    code = models.CharField(max_length=200,verbose_name='股票代码')
+    platformType = models.CharField(max_length=2, choices=platformType.choices,
+                                     default=platformType.SH,verbose_name='交易所')
+    date = models.DateField(verbose_name='日期')
     operationType = models.CharField(max_length=4,choices=operationType.choices,
-        default=operationType.BUY) 
-    price = models.FloatField(default=0)
-    count = models.IntegerField(default=0,blank=True)
-    fee = models.FloatField(default=0)
-    comment = models.CharField(max_length=200,blank=True)
-    cash = models.FloatField(default=0)  #分红
-    stock = models.FloatField(default=0)  #送股
-    reserve = models.FloatField(default=0)  #派股
+        default=operationType.BUY,verbose_name='操作类型') 
+    price = models.FloatField(default=0,verbose_name='价格')
+    count = models.IntegerField(default=0,blank=True,verbose_name='数量')
+    fee = models.FloatField(default=0,verbose_name='手续费')
+    comment = models.CharField(max_length=200,blank=True,verbose_name='备注')
+    cash = models.FloatField(default=0,verbose_name='分红')  #分红
+    stock = models.FloatField(default=0,verbose_name='送股')  #送股
+    reserve = models.FloatField(default=0,verbose_name='派股')  #派股
 
     def __str__(self):
-        return self.code+" "+str(self.date)+" "+self.operationType+" "+str(self.count)
+        return self.platformType + self.code+" "+str(self.date)+" "+self.operationType+" "+str(self.count)
 
     def to_dict(self):
         to_return = {}
@@ -50,4 +58,23 @@ class Operation(models.Model):
             to_return['comment'] = comment
         return to_return
 
+class Securities(models.Model):
+    class Meta:
+        verbose_name = '券商'
+        verbose_name_plural = '券商'
 
+    class operationType(models.TextChoices):
+        BUY = 'BUY', _('买入')
+        SELL = 'SELL', _('卖出')
+
+    name = models.CharField(max_length=200, blank=True, verbose_name='名称')
+    operationType = models.CharField(max_length=4,choices=operationType.choices,
+        default=operationType.BUY,verbose_name='操作类型')
+    commissionRate = models.FloatField(default=0, verbose_name='佣金比率(%)')
+    commission = models.FloatField(default=0, verbose_name='佣金最低金额')
+    transfer = models.FloatField(default=0, verbose_name='过户费(%)')
+    stamp = models.FloatField(default=0, verbose_name='印花税(%)')
+    other = models.FloatField(default=0, verbose_name='其他(%)')
+
+    def __str__(self):
+        return self.name + " " + self.operationType

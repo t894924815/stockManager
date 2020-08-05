@@ -1,7 +1,7 @@
 import datetime
 
 class Caculator(object):
-    originCash = 193608.00 #初始资金，这里写死
+    originCash = 12291.05 #初始资金，这里写死
     def __init__(self,operation_list,realtime_list):
         self.operation_list = operation_list
         self.realtime_list = realtime_list
@@ -11,8 +11,9 @@ class Caculator(object):
         stock_list = []
         #个股指标
         for key in self.operation_list.keys():
-            single_target = self.__caculate_single_target(key)
-            stock_list.append(single_target)
+            if key in self.realtime_list:
+               single_target = self.__caculate_single_target(key)
+               stock_list.append(single_target)
 
         to_return['stocks'] = stock_list
 
@@ -24,15 +25,14 @@ class Caculator(object):
     #计算个股指标
     def __caculate_single_target(self,key):
         to_return = {}
-
+	
         single_operation_list = self.operation_list[key]
         single_real_time = self.realtime_list[key]
-
         to_return['code'] = key
-        to_return['name'] = single_real_time[0]  #名称
-        to_return['priceNow'] = single_real_time[1]  #现价
-        to_return['offsetToday'] = single_real_time[2] #今日股价涨跌
-        to_return['offsetTodayRatio'] = single_real_time[3] #今日涨跌率
+        to_return['name'] = single_real_time[0] if len(single_real_time) >= 5 else '未找到' #名称
+        to_return['priceNow'] = single_real_time[1] if len(single_real_time) >= 5 else '未找到'  #现价
+        to_return['offsetToday'] = single_real_time[2] if len(single_real_time) >= 5 else '未找到' #今日股价涨跌
+        to_return['offsetTodayRatio'] = single_real_time[3] if len(single_real_time) >= 5 else '未找到' #今日涨跌率
         
         current_hold_count = self.__caculate_single_holdCount(single_operation_list)
         to_return['holdCount'] = current_hold_count #持股数
@@ -40,17 +40,17 @@ class Caculator(object):
         to_return['holdCost'] = current_hold_cost #持仓成本
         current_overall = self.__caculate_single_overall(single_operation_list) 
         to_return['overallCost'] = current_overall / current_hold_count if current_hold_cost > 0 else 0 #摊薄成本
-        to_return['totalValue'] = float(single_real_time[1]) * current_hold_count #今日市值
+        to_return['totalValue'] = float(single_real_time[1] if len(single_real_time) >= 5 else 0 ) * current_hold_count #今日市值
         yesterday_hold_count = self.__caculate_single_holdCount(single_operation_list,1)
-        to_return['totalValueYesterday'] = float(single_real_time[4]) * yesterday_hold_count #昨日市值，不显示
+        to_return['totalValueYesterday'] = float(single_real_time[4] if len(single_real_time) >= 5 else 0) * yesterday_hold_count #昨日市值，不显示
 
 
-        current_offset = (float(single_real_time[1]) - current_hold_cost) * current_hold_count
+        current_offset = (float(single_real_time[1] if len(single_real_time) >= 5 else 0) - current_hold_cost) * current_hold_count
         to_return['offsetCurrent'] = current_offset #浮动盈亏额
-        current_offset_ratio = (float(single_real_time[1]) - current_hold_cost) / current_hold_cost if current_hold_cost > 0 else 0
+        current_offset_ratio = (float(single_real_time[1] if len(single_real_time) >= 5 else 0) - current_hold_cost) / current_hold_cost if current_hold_cost > 0 else 0
         to_return['offsetCurrentRatio'] = "%.2f%%" % (current_offset_ratio * 100) #浮动盈亏率
 
-        to_return['offsetTotal'] = float(single_real_time[1]) * current_hold_count - current_overall #累计盈亏额
+        to_return['offsetTotal'] = float(single_real_time[1] if len(single_real_time) >= 5 else 0) * current_hold_count - current_overall #累计盈亏额
 
         to_return['operationList'] = self.__caculate_single_operation_list(single_operation_list)
 
@@ -58,7 +58,7 @@ class Caculator(object):
         if to_return['totalValueYesterday'] < 0.1:
             total_offset_today = current_offset #今天新买的，今日盈亏等于浮动盈亏
         else :
-            total_offset_today = float(single_real_time[1]) * current_hold_count - float(single_real_time[4]) * yesterday_hold_count - self.__caculate_single_today_input(single_operation_list)
+            total_offset_today = float(single_real_time[1] if len(single_real_time) >= 5 else 0) * current_hold_count - float(single_real_time[4] if len(single_real_time) >= 5 else 0) * yesterday_hold_count - self.__caculate_single_today_input(single_operation_list)
         
         to_return['totalOffsetToday'] = total_offset_today #今日盈亏，不显示
 
@@ -152,6 +152,7 @@ class Caculator(object):
         total_offset = 0
         total_value = 0
         total_offset_today = 0
+        print('sssssssttttttoooock',single_target_list)
         for single_target in single_target_list:
             current_offset += single_target['offsetCurrent']
             total_offset += single_target['offsetTotal']

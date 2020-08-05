@@ -12,30 +12,33 @@ def query_realtime_price(list):
     url = 'http://hq.sinajs.cn/list='
     for code in list:
         url = url+code+','
-        
+    print(url) 
     res_data=urllib.request.urlopen(url).read()
-    
+    # print(res_data)
     res_array = str(res_data,encoding="gb18030").split(';')
-
+    print(res_array)
     for i,single in enumerate(res_array):
         if len(single) > 10:
             content = re.search(r'\"([^\"]*)\"',single).group()
-            
             single_info = eval(content).split(',')
-            offset = float(single_info[3]) - float(single_info[2])
-            offset_ratio = "%.2f%%" % (offset/float(single_info[2]) * 100) 
-            single_real_time = [single_info[0],single_info[3],offset,offset_ratio,single_info[2]] #名称，现价，涨跌额，涨跌幅，昨收
+            print(len(single_info))
+            if len(single_info) > 4:
+                offset = float(single_info[3]) - float(single_info[2])
+                offset_ratio = "%.2f%%" % (offset/float(single_info[2]) * 100) 
+                single_real_time = [single_info[0],single_info[3],offset,offset_ratio,single_info[2]] #名称，现价，涨跌额，涨跌幅，昨收
             
-            to_return[list[i]] = single_real_time
+                to_return[list[i]] = single_real_time
+    #print(to_return)
     return to_return
 
 # 操作记录的预处理
 def format_operations(list):
     to_return = {}
     for operation in list:
+        if ((operation.platformType !=  None) and (operation.platformType != '')):
+              operation.code = operation.platformType + operation.code
         if (operation.code not in to_return.keys()):
-            to_return[operation.code] = []
-            
+           to_return[operation.code] = []
         to_return[operation.code].append(operation)
 
     return to_return

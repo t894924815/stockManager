@@ -1,0 +1,6 @@
+stockManager/__pycache__
+stockManager/log
+frontend/node_modules
+backend/__pycache__
+backend/migrations
+test.log
