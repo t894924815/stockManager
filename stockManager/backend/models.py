@@ -4,6 +4,26 @@ from django.db import models
 from django.utils import timezone
 
 # Create your models here.
+class Securities(models.Model):
+    class Meta:
+        verbose_name = '券商'
+        verbose_name_plural = '券商'
+
+    class operationType(models.TextChoices):
+        BUY = 'BUY', _('买入')
+        SELL = 'SELL', _('卖出')
+
+    name = models.CharField(max_length=200, blank=True, verbose_name='名称')
+    operationType = models.CharField(max_length=4,choices=operationType.choices,
+        default=operationType.BUY,verbose_name='操作类型')
+    commissionRate = models.FloatField(default=0, verbose_name='佣金比率(%)')
+    commission = models.FloatField(default=0, verbose_name='佣金最低金额')
+    transfer = models.FloatField(default=0, verbose_name='过户费(%)')
+    stamp = models.FloatField(default=0, verbose_name='印花税(%)')
+    other = models.FloatField(default=0, verbose_name='其他(%)')
+
+    def __str__(self):
+        return self.name + " " + self.operationType
 
 class Operation(models.Model):
     class Meta:
@@ -16,7 +36,9 @@ class Operation(models.Model):
         BUY = 'BUY', _('买入')
         SELL = 'SELL', _('卖出')
         Divident = 'DV', _('除权除息')
-        
+    
+    securities = models.ForeignKey(Securities, on_delete=models.CASCADE, verbose_name='券商平台')
+    # abortFee = models.FloatField(verbose_name='最低佣金(一般为5元)')
     code = models.CharField(max_length=200,verbose_name='股票代码')
     platformType = models.CharField(max_length=2, choices=platformType.choices,
                                      default=platformType.SH,verbose_name='交易所')
@@ -57,24 +79,3 @@ class Operation(models.Model):
             
             to_return['comment'] = comment
         return to_return
-
-class Securities(models.Model):
-    class Meta:
-        verbose_name = '券商'
-        verbose_name_plural = '券商'
-
-    class operationType(models.TextChoices):
-        BUY = 'BUY', _('买入')
-        SELL = 'SELL', _('卖出')
-
-    name = models.CharField(max_length=200, blank=True, verbose_name='名称')
-    operationType = models.CharField(max_length=4,choices=operationType.choices,
-        default=operationType.BUY,verbose_name='操作类型')
-    commissionRate = models.FloatField(default=0, verbose_name='佣金比率(%)')
-    commission = models.FloatField(default=0, verbose_name='佣金最低金额')
-    transfer = models.FloatField(default=0, verbose_name='过户费(%)')
-    stamp = models.FloatField(default=0, verbose_name='印花税(%)')
-    other = models.FloatField(default=0, verbose_name='其他(%)')
-
-    def __str__(self):
-        return self.name + " " + self.operationType

@@ -116,7 +116,7 @@ export default {
       overall: [],
       hideState: true,
       hideStr: "显示",
-      targetUrl: "https://api.stock.iakira.moe",
+      targetUrl: "http://127.0.0.1:8000",//"https://api.stock.iakira.moe",
     };
   },
   mounted: function () {
@@ -178,7 +178,8 @@ export default {
       return parseFloat(obj1) < parseFloat(obj2);
     },
     goManager() {
-      window.open('https://api.stock.iakira.moe/admin/',"_blank");
+      // window.open('https://api.stock.iakira.moe/admin/',"_blank");
+      window.open('http://127.0.0.1:8000/admin/',"_blank");
     },
     refreshDivident() {
       var codeList = [];
