@@ -9,7 +9,7 @@ def query_realtime_price(list):
     if len(list) == 0:
         return to_return
 
-    url = 'http://hq.sinajs.cn/list='
+    url = 'https://stockcrawl.iakira.moe/list='
     for code in list:
         url = url+code+','
     print(url) 
